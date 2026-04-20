@@ -1,0 +1,4 @@
+SQLAlchemy>=2.0.30
+requests>=2.32.3
+python-dotenv>=1.0.1
+sqlglot>=25.25.0
