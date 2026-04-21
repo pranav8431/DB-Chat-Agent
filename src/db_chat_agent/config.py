@@ -11,7 +11,7 @@ load_dotenv()
 class Settings:
     llm_provider: str = os.getenv("LLM_PROVIDER", "ollama")
     llm_base_url: str = os.getenv("LLM_BASE_URL", "http://localhost:11434")
-    llm_model: str = os.getenv("LLM_MODEL", "gemma3:8b")
+    llm_model: str = os.getenv("LLM_MODEL", "gemma:7b")
     llm_api_key: str | None = os.getenv("LLM_API_KEY") or None
     max_result_rows: int = int(os.getenv("MAX_RESULT_ROWS", "200"))
     llm_timeout_seconds: int = int(os.getenv("LLM_TIMEOUT_SECONDS", "120"))

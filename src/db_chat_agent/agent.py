@@ -52,6 +52,31 @@ class DatabaseChatAgent:
         return self.analysis
 
     def ask(self, question: str) -> dict[str, Any]:
+        if self._is_schema_question(question):
+            answer = self._answer_schema_question(question)
+            return {
+                "question": question,
+                "sql": None,
+                "result": None,
+                "answer": answer,
+                "explanation": "Answered directly from inspected schema metadata.",
+            }
+
+        row_request = self._extract_row_request(question)
+        if row_request:
+            deterministic = self._answer_row_request(*row_request)
+            if deterministic is not None:
+                return deterministic
+
+        if self._is_ambiguous(question):
+            return {
+                "question": question,
+                "sql": None,
+                "result": None,
+                "answer": self._clarification_prompt(question),
+                "explanation": "Clarification requested before generating SQL.",
+            }
+
         sql = self._generate_sql(question)
         query_result = run_sql(self.engine, sql, self.settings.max_result_rows)
         answer = self._generate_answer(question, sql, query_result)

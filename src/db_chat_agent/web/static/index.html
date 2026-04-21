@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gemma DB Intelligence</title>
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">G</div>
+          <div>
+            <h1>Gemma DB Intelligence</h1>
+            <p>Secure analytics workspace</p>
+          </div>
+        </div>
+
+        <div class="panel connection-panel">
+          <h2>Database connection</h2>
+          <label for="dbUri">SQLAlchemy URI</label>
+          <input id="dbUri" type="text" value="sqlite:///example.db" spellcheck="false" />
+          <button id="connectBtn" class="btn primary">Connect database</button>
+          <p id="connectionStatus" class="muted">Ready to connect.</p>
+        </div>
+
+        <div class="panel">
+          <h2>Quick prompts</h2>
+          <div class="chips">
+            <button class="chip" data-prompt="Show all users">Show all users</button>
+            <button class="chip" data-prompt="Count number of orders">Count number of orders</button>
+            <button class="chip" data-prompt="Find top 5 customers by total purchase in last 6 months">Top customers</button>
+            <button class="chip" data-prompt="List users who have never placed an order">Never ordered</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>Session</h2>
+          <div class="metric"><span>Session ID</span><strong id="sessionId">Not connected</strong></div>
+          <div class="metric"><span>Model</span><strong>Gemma 7B</strong></div>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="hero">
+          <div>
+            <span class="eyebrow">Database Copilot</span>
+            <h2>Ask questions in natural language and inspect the generated SQL.</h2>
+            <p>
+              Built for analytics, schema discovery, and safe read-only exploration across structured databases.
+            </p>
+          </div>
+          <div class="hero-stats">
+            <div class="stat-card"><span>Latency</span><strong id="latencyStat">—</strong></div>
+            <div class="stat-card"><span>Rows returned</span><strong id="rowsStat">—</strong></div>
+            <div class="stat-card"><span>Status</span><strong id="statusStat">Idle</strong></div>
+          </div>
+        </header>
+
+        <section class="dashboard-grid">
+          <div class="panel wide">
+            <div class="panel-header">
+              <h2>Chat with your database</h2>
+              <div class="panel-actions">
+                <button id="refreshSchemaBtn" class="btn ghost">Refresh schema</button>
+                <button id="clearChatBtn" class="btn ghost">Clear</button>
+              </div>
+            </div>
+
+            <div id="chatFeed" class="chat-feed"></div>
+
+            <div class="composer">
+              <textarea id="questionInput" rows="3" placeholder="Ask about revenue, customers, schema, trends, or anomalies..."></textarea>
+              <div class="composer-row">
+                <label class="toggle">
+                  <input type="checkbox" id="showSqlToggle" checked />
+                  <span>Show SQL</span>
+                </label>
+                <button id="sendBtn" class="btn primary">Run query</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel side">
+            <div class="panel-header">
+              <h2>Schema overview</h2>
+              <span id="tableCount" class="badge">0 tables</span>
+            </div>
+            <div id="schemaList" class="schema-list empty-state">Connect to a database to load schema.</div>
+          </div>
+
+          <div class="panel side">
+            <div class="panel-header">
+              <h2>Query result</h2>
+              <span id="resultCount" class="badge">0 rows</span>
+            </div>
+            <pre id="resultJson" class="code-block empty-state">No query executed yet.</pre>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>

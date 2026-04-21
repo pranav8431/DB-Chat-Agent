@@ -6,6 +6,7 @@ This project creates an AI agent that can:
 - analyze database schema and sample data
 - let users chat with the database in natural language
 - use a local Gemma model via Ollama to generate SQL and responses
+- expose a polished browser UI and FastAPI backend for database interaction
 
 ## Features
 
@@ -41,6 +42,8 @@ pip install -r requirements.txt
 ollama pull gemma:7b
 ```
 
+If that model is unavailable on your machine, set `LLM_MODEL` to a Gemma variant that exists locally.
+
 4. Copy environment file and edit if needed:
 
 ```bash
@@ -59,13 +62,21 @@ python run.py analyze --db-uri "sqlite:///example.db"
 LLM_MODEL=gemma:7b python run.py chat --db-uri "sqlite:///example.db"
 ```
 
+7. Start the web app:
+
+```bash
+python serve.py
+```
+
+Then open `http://localhost:8000`.
+
 ## Configuration
 
 Set values in `.env` or as environment variables:
 
 - `LLM_PROVIDER`: `ollama` (default) or `openai_compatible`
 - `LLM_BASE_URL`: default `http://localhost:11434`
-- `LLM_MODEL`: default `gemma3:8b`
+- `LLM_MODEL`: default `gemma:7b`
 - `LLM_API_KEY`: only needed for openai-compatible endpoints
 - `MAX_RESULT_ROWS`: max rows returned from each generated query (default `200`)
 - `LLM_TIMEOUT_SECONDS`: LLM request timeout in seconds (default `120`)
@@ -83,6 +94,18 @@ Note: install driver packages for non-SQLite databases as needed.
 
 ## Safety Notes
 
-- SQL execution guardrails are currently disabled in code.
-- Generated SQL is executed directly against the connected database.
+- SQL validation only allows single-statement read-only queries.
+- The backend still depends on the model generating valid SQL for best results.
 - Use a read-only DB user and non-production data unless you fully trust the model output.
+
+## Web UI
+
+The browser interface includes:
+
+- branded dark-mode dashboard
+- database connection form
+- schema explorer with tables, keys, and columns
+- natural-language query composer
+- generated SQL visibility
+- result JSON panel and basic query metrics
+

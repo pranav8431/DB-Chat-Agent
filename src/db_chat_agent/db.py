@@ -3,6 +3,7 @@ from __future__ import annotations
 from functools import lru_cache
 from typing import Any
 
+from sqlglot import exp, parse_one
 from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.engine import Engine
 
@@ -23,14 +24,29 @@ def infer_dialect(engine: Engine) -> str:
 
 
 def validate_sql(sql: str, dialect: str) -> bool:
-    # Guardrails intentionally disabled by user request.
     _ = dialect
-    return bool(sql and sql.strip())
+    if not sql or not sql.strip():
+        return False
+
+    normalized = sql.strip().rstrip(";")
+    if ";" in normalized:
+        return False
+    if not is_read_only_sql(normalized):
+        return False
+
+    try:
+        parsed = parse_one(normalized)
+    except Exception:
+        return False
+
+    return isinstance(parsed, (exp.Select, exp.With, exp.Union, exp.Intersect, exp.Except))
 
 
 def is_read_only_sql(sql: str) -> bool:
-    _ = sql
-    return True
+    if not sql:
+        return False
+    lowered = sql.strip().lower()
+    return lowered.startswith(("select", "with"))
 
 
 def enforce_rules(sql: str, dialect: str, default_limit: int) -> str:
@@ -81,6 +97,8 @@ def get_schema_cached(db_uri: str) -> dict[str, Any]:
 
 def run_sql(engine: Engine, sql: str, max_rows: int) -> dict[str, Any]:
     _ = max_rows
+    if not validate_sql(sql, infer_dialect(engine)):
+        raise ValueError("Only single-statement read-only SQL is allowed.")
     with engine.connect() as conn:
         result = conn.execute(text(sql))
         rows = [dict(row._mapping) for row in result]
